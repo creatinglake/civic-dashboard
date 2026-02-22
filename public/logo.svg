@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 110" fill="#386759">
+  <!-- Capitol dome -->
+  <!-- Spire -->
+  <rect x="68" y="2" width="4" height="12" rx="2"/>
+  <polygon points="60,18 80,18 70,10"/>
+
+  <!-- Upper dome -->
+  <path d="M45,38 Q45,18 70,18 Q95,18 95,38 Z"/>
+
+  <!-- Dome base band -->
+  <rect x="42" y="38" width="56" height="5"/>
+
+  <!-- Columns under dome -->
+  <rect x="46" y="43" width="4" height="16"/>
+  <rect x="54" y="43" width="4" height="16"/>
+  <rect x="62" y="43" width="4" height="16"/>
+  <rect x="70" y="43" width="4" height="16"/>
+  <rect x="78" y="43" width="4" height="16"/>
+  <rect x="86" y="43" width="4" height="16"/>
+
+  <!-- Entablature -->
+  <rect x="40" y="59" width="60" height="5"/>
+
+  <!-- Wing columns left -->
+  <rect x="20" y="59" width="4" height="18"/>
+  <rect x="30" y="59" width="4" height="18"/>
+
+  <!-- Wing columns right -->
+  <rect x="106" y="59" width="4" height="18"/>
+  <rect x="116" y="59" width="4" height="18"/>
+
+  <!-- Wings base -->
+  <rect x="15" y="59" width="110" height="4"/>
+  <rect x="15" y="77" width="110" height="4"/>
+
+  <!-- People silhouettes -->
+  <!-- Person 1 (left) -->
+  <circle cx="32" cy="86" r="7"/>
+  <path d="M20,110 Q20,95 32,95 Q44,95 44,110 Z"/>
+
+  <!-- Person 2 (center-left) -->
+  <circle cx="56" cy="86" r="7"/>
+  <path d="M44,110 Q44,95 56,95 Q68,95 68,110 Z"/>
+
+  <!-- Person 3 (center) -->
+  <circle cx="80" cy="86" r="7"/>
+  <path d="M68,110 Q68,95 80,95 Q92,95 92,110 Z"/>
+
+  <!-- Person 4 (center-right) -->
+  <circle cx="104" cy="86" r="7"/>
+  <path d="M92,110 Q92,95 104,95 Q116,95 116,110 Z"/>
+
+  <!-- Text: Civic.Social -->
+  <text x="145" y="78" font-family="'Libre Franklin', 'Arial Black', sans-serif" font-weight="700" font-size="52" letter-spacing="-1">Civic.Social</text>
+</svg>
