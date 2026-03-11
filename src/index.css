@@ -175,45 +175,37 @@ button:focus {
   transition: all 0.4s ease;
 }
 
-/* Slim sidebar */
-.slim-sidebar {
-  position: fixed;
-  left: 0;
+/* Back sidebar - unified left nav for all out-of-dashboard views */
+.back-sidebar {
+  width: 72px;
+  flex-shrink: 0;
+  height: 100vh;
+  position: sticky;
   top: 0;
-  bottom: 0;
-  width: 56px;
   background-color: var(--color-civic-green);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 20px;
-  z-index: 100;
-  transition: width 0.3s ease;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: none;
 }
 
-.slim-sidebar:hover {
-  width: 200px;
+.back-sidebar:hover {
+  background-color: var(--color-civic-teal);
 }
 
-.slim-sidebar .back-text {
-  opacity: 0;
-  white-space: nowrap;
-  transition: opacity 0.3s ease;
+.back-sidebar:hover .text-civic-cream\/50 {
+  color: rgba(247, 248, 250, 0.8);
 }
 
-.slim-sidebar:hover .back-text {
-  opacity: 1;
-}
-
-/* External view container */
+/* External view container - sits next to back sidebar */
 .external-view {
-  position: fixed;
-  top: 0;
-  left: 56px;
-  right: 0;
-  bottom: 0;
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
   background: white;
-  z-index: 50;
 }
 
 .external-view iframe {

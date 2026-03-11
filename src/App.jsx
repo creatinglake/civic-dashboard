@@ -5,14 +5,20 @@ import { Newsfeed } from './components/Newsfeed';
 import { WidgetPanel } from './components/WidgetPanel';
 import { MobileTabBar } from './components/MobileTabBar';
 import { HubsList } from './components/HubsList';
+import { BackSidebar } from './components/BackSidebar';
 import { ExternalView } from './components/ExternalView';
-import { getHubById } from './data/mockData';
+import { RepresentativeProfile } from './components/RepresentativeProfile';
+import { SampleBallotPage } from './components/SampleBallotPage';
+import { ContactRepsPage } from './components/ContactRepsPage';
+import { DemoPage } from './components/DemoPage';
+import { HubPage } from './components/HubPage';
 
 function App() {
   const isMobile = useIsMobile();
   const [selectedHub, setSelectedHub] = useState(null);
-  const [mobileTab, setMobileTab] = useState('tools');
+  const [mobileTab, setMobileTab] = useState('feed');
   const [externalView, setExternalView] = useState(null);
+  const [activePage, setActivePage] = useState(null);
 
   // Handle hub selection
   const handleSelectHub = (hubId) => {
@@ -29,13 +35,9 @@ function App() {
     }
   };
 
-  // Handle viewing item in hub (deep link)
+  // Handle viewing item in hub - navigate to hub page with item highlighted
   const handleViewInHub = (item, hub) => {
-    setExternalView({
-      isHub: true,
-      title: `${hub.name} > ${item.title}`,
-      url: null,
-    });
+    setActivePage({ type: 'hub-page', data: { hub, highlightedItem: item } });
   };
 
   // Handle opening external tool
@@ -49,20 +51,84 @@ function App() {
     }
   };
 
-  // Handle closing external view
-  const handleCloseExternalView = () => {
+  // Handle opening internal pages
+  const handleOpenPage = (pageType, data) => {
+    if (pageType === 'hub' && data?.hubId) {
+      setSelectedHub(data.hubId);
+      if (isMobile) setMobileTab('feed');
+      return;
+    }
+    setActivePage({ type: pageType, data });
+  };
+
+  // Handle closing pages / returning to dashboard
+  const handleBackToDashboard = () => {
+    setActivePage(null);
     setExternalView(null);
   };
 
-  // If showing external view
-  if (externalView) {
+  // Determine if we're in an out-of-dashboard view
+  const isOutOfDashboard = activePage || externalView;
+
+  // Render out-of-dashboard views with unified left sidebar
+  if (isOutOfDashboard) {
+    let pageContent = null;
+
+    if (activePage) {
+      switch (activePage.type) {
+        case 'representative':
+          pageContent = (
+            <RepresentativeProfile representative={activePage.data.representative} />
+          );
+          break;
+        case 'sample-ballot':
+          pageContent = <SampleBallotPage />;
+          break;
+        case 'contact-reps':
+          pageContent = <ContactRepsPage />;
+          break;
+        case 'advisory-voting':
+          pageContent = (
+            <DemoPage
+              title="Advisory Voting"
+              description="Tell your representatives how you would like them to vote on upcoming legislation. Your advisory votes help elected officials understand constituent priorities."
+            />
+          );
+          break;
+        case 'discover':
+          pageContent = (
+            <DemoPage
+              title="Discover Civic Opportunities"
+              description="Find civic actions and participation opportunities that match your interests. From volunteering to advocacy, discover ways to make a difference in your community."
+            />
+          );
+          break;
+        case 'hub-page':
+          pageContent = (
+            <HubPage
+              hub={activePage.data.hub}
+              highlightedItem={activePage.data.highlightedItem}
+            />
+          );
+          break;
+        default:
+          break;
+      }
+    } else if (externalView) {
+      pageContent = (
+        <ExternalView
+          url={externalView.url}
+          title={externalView.title}
+          isHub={externalView.isHub}
+        />
+      );
+    }
+
     return (
-      <ExternalView
-        url={externalView.url}
-        title={externalView.title}
-        isHub={externalView.isHub}
-        onBack={handleCloseExternalView}
-      />
+      <div className="flex min-h-screen">
+        <BackSidebar onBack={handleBackToDashboard} />
+        {pageContent}
+      </div>
     );
   }
 
@@ -70,9 +136,8 @@ function App() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-civic-cream pb-[72px]">
-        {/* Content based on active tab */}
-        {mobileTab === 'tools' && (
-          <WidgetPanel onOpenTool={handleOpenTool} />
+        {mobileTab === 'info' && (
+          <WidgetPanel onOpenTool={handleOpenTool} onOpenPage={handleOpenPage} />
         )}
         {mobileTab === 'feed' && (
           <Newsfeed
@@ -84,7 +149,6 @@ function App() {
           <HubsList onSelectHub={handleSelectHub} />
         )}
 
-        {/* Bottom Tab Bar */}
         <MobileTabBar
           activeTab={mobileTab}
           onTabChange={setMobileTab}
@@ -113,9 +177,9 @@ function App() {
         />
       </div>
 
-      {/* Right Column - Widgets */}
+      {/* Right Column - Civic Info + Tools */}
       <div className="w-[380px] flex-shrink-0 h-screen overflow-hidden border-l border-gray-200 bg-white">
-        <WidgetPanel onOpenTool={handleOpenTool} />
+        <WidgetPanel onOpenTool={handleOpenTool} onOpenPage={handleOpenPage} />
       </div>
     </div>
   );

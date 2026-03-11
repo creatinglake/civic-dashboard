@@ -1,11 +1,16 @@
 import React from 'react';
 import { FeedItem } from './FeedItem';
-import { feedItems, getFeedItemsByHub, getTotalUnreadCount, getHubById } from '../data/mockData';
+import { feedItems, getFeedItemsByHub, getHubById } from '../data/mockData';
 
 export function Newsfeed({ selectedHub, onViewInHub }) {
   const items = selectedHub ? getFeedItemsByHub(selectedHub) : feedItems;
   const unreadCount = items.filter(item => !item.isRead).length;
   const totalCount = items.length;
+
+  // Count civic opportunities (actions, votes, meetings, events happening soon)
+  const opportunities = items.filter(item =>
+    ['action', 'vote', 'meeting', 'event', 'poll', 'hearing'].includes(item.type) && !item.isRead
+  ).length;
 
   return (
     <div className="h-full flex flex-col">
@@ -23,9 +28,18 @@ export function Newsfeed({ selectedHub, onViewInHub }) {
         </div>
       </div>
 
+      {/* Civic Opportunities Banner */}
+      {!selectedHub && opportunities > 0 && (
+        <div className="mx-8 mt-6 px-5 py-4 bg-civic-green/5 border border-civic-green/15 rounded-xl">
+          <p className="text-sm font-medium text-civic-green">
+            You have {opportunities} civic {opportunities === 1 ? 'opportunity' : 'opportunities'} this week.
+          </p>
+        </div>
+      )}
+
       {/* Feed Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-8">
-        <div className="space-y-6">
+      <div className="flex-1 overflow-y-auto px-8 py-6">
+        <div className="space-y-5">
           {items.length > 0 ? (
             items.map((item) => (
               <FeedItem

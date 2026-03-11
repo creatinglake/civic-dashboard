@@ -1,16 +1,15 @@
 import React from 'react';
 import { HubIcon } from './Icons';
-import { civicHubs, getTotalUnreadCount } from '../data/mockData';
+import { civicHubs, hubColors, getTotalUnreadCount, getHubsByType } from '../data/mockData';
 import civicLogo from '../assets/CivicSocial Logo SVG.svg';
 
-const hubColors = {
-  'belmont-na': { bg: '#E8F5E9', text: '#2E7D32' },
-  'athens-rcv': { bg: '#FFF3E0', text: '#E65100' },
-  'athens-bos': { bg: '#E3F2FD', text: '#1565C0' },
-  'athens-town': { bg: '#F3E5F5', text: '#7B1FA2' },
-  'athens-schools': { bg: '#FFF8E1', text: '#F57F17' },
-  'virginia-state': { bg: '#ECEFF1', text: '#37474F' },
+const hubTypeLabels = {
+  jurisdiction: 'Jurisdictions',
+  issue: 'Issues',
+  organization: 'Organizations',
 };
+
+const hubTypeOrder = ['jurisdiction', 'issue', 'organization'];
 
 export function Sidebar({ selectedHub, onSelectHub, onSelectAll }) {
   const totalUnread = getTotalUnreadCount();
@@ -36,54 +35,63 @@ export function Sidebar({ selectedHub, onSelectHub, onSelectAll }) {
           <span className="font-semibold text-sm">All Updates</span>
           {totalUnread > 0 && (
             <span className={`text-sm font-semibold ${
-              selectedHub === null
-                ? 'text-white/80'
-                : 'text-gray-400'
+              selectedHub === null ? 'text-white/80' : 'text-gray-400'
             }`}>
               {totalUnread}
             </span>
           )}
         </button>
 
-        {/* My Civic Hubs Section */}
-        <div className="mt-8">
-          <h2 className="px-5 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-5">
+        {/* My Civic Hubs - grouped by type */}
+        <div className="mt-6">
+          <h2 className="px-5 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
             My Civic Hubs
           </h2>
 
-          <div className="space-y-2">
-            {civicHubs.map((hub) => {
-              const colors = hubColors[hub.id] || { bg: '#F5F5F5', text: '#666' };
-              return (
-                <button
-                  key={hub.id}
-                  onClick={() => onSelectHub(hub.id)}
-                  className={`w-full text-left px-5 py-4 rounded-xl transition-all flex items-center gap-4 group ${
-                    selectedHub === hub.id
-                      ? 'bg-gray-50 shadow-sm'
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <span
-                    className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: colors.bg, color: colors.text }}
-                  >
-                    <HubIcon icon={hub.icon} size={20} />
-                  </span>
-                  <span className={`flex-1 text-sm font-medium truncate ${
-                    selectedHub === hub.id ? 'text-gray-900' : 'text-gray-600'
-                  }`}>
-                    {hub.shortName}
-                  </span>
-                  {hub.unreadCount > 0 && (
-                    <span className="flex-shrink-0 text-sm font-semibold text-gray-400 pr-2">
-                      {hub.unreadCount}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          {hubTypeOrder.map((type) => {
+            const hubs = getHubsByType(type);
+            if (hubs.length === 0) return null;
+            return (
+              <div key={type} className="mb-4">
+                <h3 className="px-5 text-[11px] font-medium text-gray-300 uppercase tracking-wider mb-2">
+                  {hubTypeLabels[type]}
+                </h3>
+                <div className="space-y-1">
+                  {hubs.map((hub) => {
+                    const colors = hubColors[hub.id] || { bg: '#F5F5F5', text: '#666' };
+                    return (
+                      <button
+                        key={hub.id}
+                        onClick={() => onSelectHub(hub.id)}
+                        className={`w-full text-left px-5 py-3 rounded-xl transition-all flex items-center gap-3 group ${
+                          selectedHub === hub.id
+                            ? 'bg-gray-50 shadow-sm'
+                            : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        <span
+                          className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: colors.bg, color: colors.text }}
+                        >
+                          <HubIcon icon={hub.icon} size={18} />
+                        </span>
+                        <span className={`flex-1 text-sm font-medium truncate ${
+                          selectedHub === hub.id ? 'text-gray-900' : 'text-gray-600'
+                        }`}>
+                          {hub.shortName}
+                        </span>
+                        {hub.unreadCount > 0 && (
+                          <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-civic-rust/10 text-civic-rust text-xs font-semibold flex items-center justify-center">
+                            {hub.unreadCount}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </nav>
 

@@ -1,29 +1,18 @@
 import React from 'react';
-import { Widget } from './Widget';
-import { civicTools } from '../data/mockData';
+import { CivicInfoSection } from './CivicInfoSection';
+import { CivicToolsSection } from './CivicToolsSection';
 
-export function WidgetPanel({ onOpenTool }) {
+export function WidgetPanel({ onOpenTool, onOpenPage }) {
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="px-10 py-8 border-b border-gray-100">
-        <h2 className="text-lg font-heading font-semibold text-gray-900">
-          Civic Tools
-        </h2>
-        <p className="text-xs text-gray-400 mt-1.5">{civicTools.length} tools available</p>
+      {/* Civic Information - top section */}
+      <div className="flex-1 overflow-y-auto border-b border-gray-100 min-h-0">
+        <CivicInfoSection onOpenPage={onOpenPage} />
       </div>
 
-      {/* Widgets */}
-      <div className="flex-1 overflow-y-auto px-10 py-8">
-        <div className="space-y-7">
-          {civicTools.map((tool) => (
-            <Widget
-              key={tool.id}
-              tool={tool}
-              onOpenTool={onOpenTool}
-            />
-          ))}
-        </div>
+      {/* Civic Tools - bottom section */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <CivicToolsSection onOpenTool={onOpenTool} onOpenPage={onOpenPage} />
       </div>
     </div>
   );

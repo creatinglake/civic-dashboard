@@ -1,6 +1,14 @@
 import React from 'react';
 import { HubIcon, ChevronRightIcon } from './Icons';
-import { civicHubs } from '../data/mockData';
+import { civicHubs, hubColors, getHubsByType } from '../data/mockData';
+
+const hubTypeLabels = {
+  jurisdiction: 'Jurisdictions',
+  issue: 'Issues',
+  organization: 'Organizations',
+};
+
+const hubTypeOrder = ['jurisdiction', 'issue', 'organization'];
 
 export function HubsList({ onSelectHub }) {
   return (
@@ -17,38 +25,47 @@ export function HubsList({ onSelectHub }) {
 
       {/* Hubs List */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-2">
-          {civicHubs.map((hub) => (
-            <button
-              key={hub.id}
-              onClick={() => onSelectHub(hub.id)}
-              className="w-full card p-4 flex items-center gap-4 text-left hover:bg-civic-teal/5 transition-colors"
-            >
-              {/* Hub Icon */}
-              <div
-                className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: `${hub.color}15` }}
-              >
-                <HubIcon icon={hub.icon} size={24} />
+        {hubTypeOrder.map((type) => {
+          const hubs = getHubsByType(type);
+          if (hubs.length === 0) return null;
+          return (
+            <div key={type} className="mb-4">
+              <h3 className="px-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                {hubTypeLabels[type]}
+              </h3>
+              <div className="space-y-2">
+                {hubs.map((hub) => {
+                  const colors = hubColors[hub.id] || { bg: '#F5F5F5', text: '#666' };
+                  return (
+                    <button
+                      key={hub.id}
+                      onClick={() => onSelectHub(hub.id)}
+                      className="w-full card p-4 flex items-center gap-4 text-left hover:bg-civic-teal/5 transition-colors"
+                    >
+                      <div
+                        className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+                        style={{ backgroundColor: colors.bg, color: colors.text }}
+                      >
+                        <HubIcon icon={hub.icon} size={24} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-heading font-semibold text-civic-green truncate">
+                          {hub.name}
+                        </h3>
+                        {hub.unreadCount > 0 && (
+                          <p className="text-sm text-civic-rust mt-0.5">
+                            {hub.unreadCount} new updates
+                          </p>
+                        )}
+                      </div>
+                      <ChevronRightIcon size={20} className="text-civic-green/40" />
+                    </button>
+                  );
+                })}
               </div>
-
-              {/* Hub Info */}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-heading font-semibold text-civic-green truncate">
-                  {hub.name}
-                </h3>
-                {hub.unreadCount > 0 && (
-                  <p className="text-sm text-civic-rust mt-0.5">
-                    {hub.unreadCount} new updates
-                  </p>
-                )}
-              </div>
-
-              {/* Chevron */}
-              <ChevronRightIcon size={20} className="text-civic-green/40" />
-            </button>
-          ))}
-        </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

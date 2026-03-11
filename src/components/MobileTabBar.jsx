@@ -3,9 +3,9 @@ import { ToolsIcon, FeedIcon, HubsIcon } from './Icons';
 
 export function MobileTabBar({ activeTab, onTabChange }) {
   const tabs = [
-    { id: 'tools', label: 'Tools', icon: ToolsIcon },
     { id: 'feed', label: 'Feed', icon: FeedIcon },
     { id: 'hubs', label: 'Hubs', icon: HubsIcon },
+    { id: 'info', label: 'Info & Tools', icon: ToolsIcon },
   ];
 
   return (

@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
-import { getContentTypeIcon, HubIcon, ChevronDownIcon, ChevronRightIcon } from './Icons';
-import { getHubById } from '../data/mockData';
-
-const hubColors = {
-  'belmont-na': { bg: '#E8F5E9', text: '#2E7D32' },
-  'athens-rcv': { bg: '#FFF3E0', text: '#E65100' },
-  'athens-bos': { bg: '#E3F2FD', text: '#1565C0' },
-  'athens-town': { bg: '#F3E5F5', text: '#7B1FA2' },
-  'athens-schools': { bg: '#FFF8E1', text: '#F57F17' },
-  'virginia-state': { bg: '#ECEFF1', text: '#37474F' },
-};
+import { getContentTypeIcon, HubIcon, ChevronRightIcon } from './Icons';
+import { getHubById, hubColors } from '../data/mockData';
 
 export function FeedItem({ item, onViewInHub }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -39,12 +30,7 @@ export function FeedItem({ item, onViewInHub }) {
       }}
       aria-expanded={isExpanded}
     >
-      {/* Unread indicator */}
-      {!item.isRead && (
-        <div className="absolute top-8 right-8 w-2.5 h-2.5 bg-civic-rust rounded-full" />
-      )}
-
-      {/* Header */}
+      {/* Top row: Hub icon + meta on left, View button on right */}
       <div className="flex items-start gap-5">
         {/* Hub Icon */}
         <div
@@ -56,7 +42,7 @@ export function FeedItem({ item, onViewInHub }) {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          {/* Hub name and type */}
+          {/* Hub name, type, timestamp */}
           <div className="flex items-center gap-2 mb-2">
             <span className="text-sm font-medium" style={{ color: colors.text }}>
               {hub?.shortName}
@@ -98,28 +84,23 @@ export function FeedItem({ item, onViewInHub }) {
             </div>
           )}
 
-          {/* Expanded actions */}
+          {/* Author shown when expanded */}
           {isExpanded && (
-            <div className="mt-5 pt-4 border-t border-gray-100 animate-fadeIn flex items-center gap-4">
-              <button
-                onClick={handleViewInHub}
-                className="btn-primary text-sm"
-              >
-                View in {hub?.shortName}
-                <ChevronRightIcon size={16} />
-              </button>
+            <div className="mt-5 pt-4 border-t border-gray-100 animate-fadeIn">
               <span className="text-xs text-gray-400">{item.author}</span>
             </div>
           )}
         </div>
 
-        {/* Expand indicator */}
-        <div className="flex-shrink-0 text-gray-300 mt-1">
-          <ChevronDownIcon
-            size={18}
-            className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-          />
-        </div>
+        {/* View in Hub button - top right, hub-colored pill style */}
+        <button
+          onClick={handleViewInHub}
+          className="text-sm font-medium flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
+          style={{ color: colors.text, backgroundColor: colors.bg }}
+        >
+          View in {hub?.shortName}
+          <ChevronRightIcon size={14} />
+        </button>
       </div>
     </article>
   );
