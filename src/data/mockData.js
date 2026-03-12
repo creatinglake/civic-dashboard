@@ -122,6 +122,7 @@ export const myRepresentatives = [
       'Subcommittee on Health',
       'Subcommittee on Oversight and Investigations',
     ],
+    constituentAlignment: 62,
     upcomingElection: 'November 3, 2026',
     contactInfo: {
       phone: '(202) 555-0142',
@@ -153,6 +154,7 @@ export const myRepresentatives = [
       'Senate Finance Committee',
       'Senate Banking Committee',
     ],
+    constituentAlignment: 71,
     upcomingElection: 'November 2026',
     contactInfo: {
       phone: '(202) 555-0198',
@@ -184,6 +186,7 @@ export const myRepresentatives = [
       'Senate Foreign Relations Committee',
       'Senate Health, Education, Labor, and Pensions Committee',
     ],
+    constituentAlignment: 74,
     upcomingElection: 'November 2030',
     contactInfo: {
       phone: '(202) 555-0176',
@@ -211,6 +214,7 @@ export const myRepresentatives = [
       topDonors: ['Business Leaders', 'PACs', 'Individual Contributions'],
     },
     committees: [],
+    constituentAlignment: 58,
     upcomingElection: 'November 2025 (Term limited)',
     contactInfo: {
       phone: '(804) 555-0100',

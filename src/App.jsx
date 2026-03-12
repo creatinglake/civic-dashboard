@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useIsMobile } from './hooks/useMediaQuery';
 import { Sidebar } from './components/Sidebar';
 import { Newsfeed } from './components/Newsfeed';
@@ -10,8 +10,10 @@ import { ExternalView } from './components/ExternalView';
 import { RepresentativeProfile } from './components/RepresentativeProfile';
 import { SampleBallotPage } from './components/SampleBallotPage';
 import { ContactRepsPage } from './components/ContactRepsPage';
-import { DemoPage } from './components/DemoPage';
+import { DemoPage, VoterPrimeLogo } from './components/DemoPage';
+import { AdvisoryVotingPage } from './components/AdvisoryVotingPage';
 import { HubPage } from './components/HubPage';
+import { WelcomeOverlay } from './components/WelcomeOverlay';
 
 function App() {
   const isMobile = useIsMobile();
@@ -61,11 +63,48 @@ function App() {
     setActivePage({ type: pageType, data });
   };
 
+  // Ref to prevent duplicate history pushes (React strict mode / HMR)
+  const historyPushedRef = useRef(false);
+
+  // Always stamp the current history entry as dashboard on mount
+  // This ensures a clean baseline even after HMR or page reloads
+  useEffect(() => {
+    window.history.replaceState({ page: 'dashboard' }, '');
+  }, []);
+
   // Handle closing pages / returning to dashboard
-  const handleBackToDashboard = () => {
+  const handleBackToDashboard = useCallback((fromPopState = false) => {
     setActivePage(null);
     setExternalView(null);
-  };
+    historyPushedRef.current = false;
+    if (!fromPopState) {
+      // Triggered by sidebar back button — go back in history to match
+      window.history.back();
+    } else {
+      // Triggered by browser back — stamp current entry as dashboard
+      window.history.replaceState({ page: 'dashboard' }, '');
+    }
+  }, []);
+
+  // Browser back button support
+  useEffect(() => {
+    const onPopState = () => {
+      // Any browser back/forward while on a subpage should return to dashboard
+      handleBackToDashboard(true);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [handleBackToDashboard]);
+
+  // Push a history entry whenever we leave the dashboard (guarded against duplicates)
+  useEffect(() => {
+    if ((activePage || externalView) && !historyPushedRef.current) {
+      window.history.pushState({ page: 'subpage' }, '');
+      historyPushedRef.current = true;
+    } else if (!activePage && !externalView) {
+      historyPushedRef.current = false;
+    }
+  }, [activePage, externalView]);
 
   // Determine if we're in an out-of-dashboard view
   const isOutOfDashboard = activePage || externalView;
@@ -85,21 +124,27 @@ function App() {
           pageContent = <SampleBallotPage />;
           break;
         case 'contact-reps':
-          pageContent = <ContactRepsPage />;
-          break;
-        case 'advisory-voting':
           pageContent = (
-            <DemoPage
-              title="Advisory Voting"
-              description="Tell your representatives how you would like them to vote on upcoming legislation. Your advisory votes help elected officials understand constituent priorities."
+            <ExternalView
+              url="https://civiq.chat/ea024c1c-c4ca-4b49-9ad8-b62d7047c0b4"
+              title="Contact Representatives"
+              isHub={false}
             />
           );
+          break;
+        case 'advisory-voting':
+          pageContent = <AdvisoryVotingPage />;
           break;
         case 'discover':
           pageContent = (
             <DemoPage
               title="Discover Civic Opportunities"
               description="Find civic actions and participation opportunities that match your interests. From volunteering to advocacy, discover ways to make a difference in your community."
+              poweredBy={{
+                name: 'VoterPrime',
+                url: 'https://voterprime.org/',
+                logo: <VoterPrimeLogo size={28} />,
+              }}
             />
           );
           break;
@@ -160,6 +205,7 @@ function App() {
   // Desktop Layout - Three Column
   return (
     <div className="min-h-screen bg-civic-cream flex">
+      <WelcomeOverlay />
       {/* Left Column - Sidebar Navigation */}
       <div className="w-[300px] flex-shrink-0 border-r border-gray-200 h-screen sticky top-0">
         <Sidebar

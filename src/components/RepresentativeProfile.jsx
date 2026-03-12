@@ -1,8 +1,25 @@
 import React from 'react';
-import { UserIcon } from './Icons';
+
+function getInitials(name) {
+  return name.split(' ').map(n => n[0]).join('').slice(0, 2);
+}
+
+function getAlignmentColor(pct) {
+  if (pct >= 75) return { bg: 'bg-green-50', text: 'text-green-700', ring: 'ring-green-200', stroke: '#16a34a' };
+  if (pct >= 50) return { bg: 'bg-yellow-50', text: 'text-yellow-700', ring: 'ring-yellow-200', stroke: '#ca8a04' };
+  return { bg: 'bg-red-50', text: 'text-red-700', ring: 'ring-red-200', stroke: '#dc2626' };
+}
 
 export function RepresentativeProfile({ representative }) {
   const rep = representative;
+  const initials = getInitials(rep.name);
+  const alignment = rep.constituentAlignment;
+  const alignColor = alignment != null ? getAlignmentColor(alignment) : null;
+
+  // SVG circle progress
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = alignment != null ? circumference * (1 - alignment / 100) : circumference;
 
   return (
     <div className="flex-1 min-w-0 h-screen overflow-y-auto bg-civic-cream">
@@ -11,7 +28,7 @@ export function RepresentativeProfile({ representative }) {
         <div className="card px-8 py-8 mb-6">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 rounded-2xl bg-civic-teal/10 flex items-center justify-center flex-shrink-0">
-              <UserIcon size={36} className="text-civic-teal" />
+              <span className="text-2xl font-heading font-bold text-civic-teal">{initials}</span>
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-heading font-bold text-gray-900">{rep.name}</h1>
@@ -29,6 +46,38 @@ export function RepresentativeProfile({ representative }) {
             </div>
           </div>
         </div>
+
+        {/* Constituent Alignment Card */}
+        {alignment != null && (
+          <div className={`card px-8 py-6 mb-6 ${alignColor.bg} ring-1 ${alignColor.ring}`}>
+            <div className="flex items-center gap-6">
+              {/* Circular progress */}
+              <div className="flex-shrink-0 relative w-24 h-24">
+                <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
+                  <circle cx="48" cy="48" r={radius} fill="none" stroke="#e5e7eb" strokeWidth="6" />
+                  <circle
+                    cx="48" cy="48" r={radius} fill="none"
+                    stroke={alignColor.stroke} strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={dashOffset}
+                    style={{ transition: 'stroke-dashoffset 0.8s ease-out' }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className={`text-2xl font-heading font-bold ${alignColor.text}`}>{alignment}%</span>
+                </div>
+              </div>
+              {/* Description */}
+              <div className="flex-1">
+                <h3 className="text-base font-heading font-semibold text-gray-900 mb-1">Constituent Alignment</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  This percentage represents how well {rep.name} is voting in accordance with their constituents' preferences, based on advisory polling and public input data.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Voting Record */}
