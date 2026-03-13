@@ -1,9 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import civicLogoOnly from '../assets/CS Logo ONlY png.png';
 import { useIsMobile } from '../hooks/useMediaQuery';
 
+let hasShownMobileRailHint = false;
+
 export function BackSidebar({ onBack }) {
   const isMobile = useIsMobile();
+  const [showHint, setShowHint] = useState(false);
+  const [hintFading, setHintFading] = useState(false);
+
+  useEffect(() => {
+    if (!isMobile || hasShownMobileRailHint) return undefined;
+
+    hasShownMobileRailHint = true;
+    setShowHint(true);
+    setHintFading(false);
+    const fadeTimer = window.setTimeout(() => setHintFading(true), 2600);
+    const hideTimer = window.setTimeout(() => setShowHint(false), 3000);
+
+    return () => {
+      window.clearTimeout(fadeTimer);
+      window.clearTimeout(hideTimer);
+    };
+  }, [isMobile]);
 
   if (isMobile) {
     return (
@@ -33,6 +52,18 @@ export function BackSidebar({ onBack }) {
             <polyline points="12 19 5 12 12 5" />
           </svg>
         </div>
+        {showHint && (
+          <div
+            className="mobile-back-hint"
+            style={{
+              opacity: hintFading ? 0 : 1,
+              transform: hintFading ? 'translateX(-4px)' : 'translateX(0)',
+            }}
+          >
+            <div className="mobile-back-hint-arrow" aria-hidden="true" />
+            <p>Tap here to get back to dashboard.</p>
+          </div>
+        )}
       </div>
     );
   }

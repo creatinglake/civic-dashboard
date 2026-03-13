@@ -81,6 +81,14 @@ function App() {
     widgetPanelScrollRef.current[section] = scrollTop;
   }, []);
 
+  const handleMobileTabChange = useCallback((nextTab) => {
+    shouldRestoreMobileInfoScrollRef.current = false;
+    setMobileTab(nextTab);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    });
+  }, []);
+
   useEffect(() => {
     if (!isMobile || isOutOfDashboard || mobileTab !== 'info') return undefined;
 
@@ -119,6 +127,11 @@ function App() {
     setActivePage(null);
     setExternalView(null);
     historyPushedRef.current = false;
+    if (isMobile) {
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      });
+    }
     if (!fromPopState) {
       // Triggered by sidebar back button — go back in history to match
       window.history.back();
@@ -126,7 +139,7 @@ function App() {
       // Triggered by browser back — stamp current entry as dashboard
       window.history.replaceState({ page: 'dashboard' }, '');
     }
-  }, []);
+  }, [isMobile]);
 
   // Browser back button support
   useEffect(() => {
@@ -246,7 +259,7 @@ function App() {
 
         <MobileTabBar
           activeTab={mobileTab}
-          onTabChange={setMobileTab}
+          onTabChange={handleMobileTabChange}
         />
       </div>
     );
