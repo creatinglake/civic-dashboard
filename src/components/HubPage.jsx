@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { HubIcon, getContentTypeIcon, ChevronRightIcon, CalendarIcon, UserIcon, MapPinIcon } from './Icons';
 import { getFeedItemsByHub, hubColors, hubPageData } from '../data/mockData';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 // ─── Utilities ───────────────────────────────────────────────
 
@@ -83,7 +84,7 @@ function HubPatternSVG({ type }) {
 
 // ─── Banner ──────────────────────────────────────────────────
 
-function HubBanner({ hub, colors, itemCount, unreadCount }) {
+function HubBanner({ hub, itemCount, unreadCount, isMobile }) {
   const light = isLightColor(hub.color);
   const textColor = light ? 'text-gray-900' : 'text-white';
   const subtextColor = light ? 'text-gray-700/70' : 'text-white/70';
@@ -100,34 +101,33 @@ function HubBanner({ hub, colors, itemCount, unreadCount }) {
     >
       <HubPatternSVG type={hub.type} />
 
-      <div className="relative max-w-6xl mx-auto px-10 pt-10 pb-8">
-        <div className="flex items-start gap-5">
-          {/* Large hub icon */}
-          <div
-            className="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center"
-            style={{
-              backgroundColor: light ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)',
-            }}
-          >
-            <HubIcon icon={hub.icon} size={28} color={light ? hub.color : 'white'} />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className={`text-2xl font-heading font-bold ${textColor}`}>
-                {hub.name}
-              </h1>
-              <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${badgeBg} ${badgeText}`}>
-                {hubTypeLabels[hub.type]}
-              </span>
+      <div className={`relative max-w-6xl mx-auto ${isMobile ? 'px-3.5 pt-4 pb-4' : 'px-10 pt-10 pb-8'}`}>
+        {isMobile ? (
+          <div>
+            <div className="flex items-start gap-2.5 mb-2">
+              <div
+                className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{
+                  backgroundColor: light ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)',
+                }}
+              >
+                <HubIcon icon={hub.icon} size={18} color={light ? hub.color : 'white'} />
+              </div>
+              <div className="min-w-0">
+                <h1 className={`text-[1.15rem] leading-tight font-heading font-bold ${textColor}`}>
+                  {hub.name}
+                </h1>
+                <span className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full mt-2 ${badgeBg} ${badgeText}`}>
+                  {hubTypeLabels[hub.type]}
+                </span>
+              </div>
             </div>
 
-            <p className={`text-sm leading-relaxed max-w-2xl mb-4 ${subtextColor}`}>
+            <p className={`text-sm leading-relaxed mb-3 ${subtextColor}`}>
               {data?.description || ''}
             </p>
 
-            {/* Stats */}
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3 flex-wrap">
               <span className={`text-sm ${subtextColor}`}>
                 <span className={`font-semibold ${textColor}`}>{itemCount}</span> updates
               </span>
@@ -153,7 +153,60 @@ function HubBanner({ hub, colors, itemCount, unreadCount }) {
               )}
             </div>
           </div>
-        </div>
+        ) : (
+          /* Desktop: side-by-side layout */
+          <div className="flex items-start gap-5">
+            <div
+              className="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center"
+              style={{
+                backgroundColor: light ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.15)',
+              }}
+            >
+              <HubIcon icon={hub.icon} size={28} color={light ? hub.color : 'white'} />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className={`text-2xl font-heading font-bold ${textColor}`}>
+                  {hub.name}
+                </h1>
+                <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${badgeBg} ${badgeText}`}>
+                  {hubTypeLabels[hub.type]}
+                </span>
+              </div>
+
+              <p className={`text-sm leading-relaxed max-w-2xl mb-4 ${subtextColor}`}>
+                {data?.description || ''}
+              </p>
+
+              <div className="flex items-center gap-5">
+                <span className={`text-sm ${subtextColor}`}>
+                  <span className={`font-semibold ${textColor}`}>{itemCount}</span> updates
+                </span>
+                <span className={subtextColor}>·</span>
+                <span className={`text-sm ${subtextColor}`}>
+                  <span className={`font-semibold ${textColor}`}>{unreadCount}</span> unread
+                </span>
+                {hub.type === 'organization' && data?.about?.memberCount && (
+                  <>
+                    <span className={subtextColor}>·</span>
+                    <span className={`text-sm ${subtextColor}`}>
+                      <span className={`font-semibold ${textColor}`}>{data.about.memberCount}</span> members
+                    </span>
+                  </>
+                )}
+                {hub.type === 'issue' && data?.supporters && (
+                  <>
+                    <span className={subtextColor}>·</span>
+                    <span className={`text-sm ${subtextColor}`}>
+                      <span className={`font-semibold ${textColor}`}>{data.supporters.volunteers}</span> volunteers
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -168,16 +221,16 @@ const hubTabs = [
   { id: 'members', label: 'Members' },
 ];
 
-function HubTabBar({ activeTab, onTabChange, hubColor }) {
+function HubTabBar({ activeTab, onTabChange, hubColor, isMobile }) {
   return (
     <div className="border-b border-gray-200 bg-white">
-      <div className="max-w-6xl mx-auto px-10">
-        <div className="flex gap-8">
+      <div className={`max-w-6xl mx-auto ${isMobile ? 'px-3' : 'px-10'}`}>
+        <div className={isMobile ? 'grid grid-cols-4 gap-1' : 'flex gap-8'}>
           {hubTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`py-3.5 text-sm font-heading font-semibold border-b-2 transition-colors ${
+              className={`${isMobile ? 'py-2.5 text-[13px] leading-tight text-center min-w-0' : 'py-3 text-sm'} font-heading font-semibold border-b-2 transition-colors ${
                 activeTab === tab.id
                   ? 'text-gray-900'
                   : 'border-transparent text-gray-400 hover:text-gray-600'
@@ -195,12 +248,12 @@ function HubTabBar({ activeTab, onTabChange, hubColor }) {
 
 // ─── Feed Item ───────────────────────────────────────────────
 
-function HubFeedItem({ item, hubColor, isHighlighted }) {
+function HubFeedItem({ item, hubColor, isHighlighted, isMobile }) {
   const [isExpanded, setIsExpanded] = useState(isHighlighted);
 
   return (
     <article
-      className={`bg-white rounded-2xl px-6 py-5 cursor-pointer transition-all hover:shadow-md relative ${
+      className={`bg-white ${isMobile ? 'rounded-xl px-4 py-4' : 'rounded-2xl px-6 py-5'} cursor-pointer transition-all hover:shadow-md relative ${
         isHighlighted ? 'border-l-4' : ''
       }`}
       style={isHighlighted ? { borderLeftColor: hubColor } : undefined}
@@ -209,12 +262,12 @@ function HubFeedItem({ item, hubColor, isHighlighted }) {
       {/* Unread dot */}
       {!item.isRead && (
         <div
-          className="absolute top-5 right-5 w-2 h-2 rounded-full"
+          className={`absolute ${isMobile ? 'top-4 right-4' : 'top-5 right-5'} w-2 h-2 rounded-full`}
           style={{ backgroundColor: hubColor }}
         />
       )}
 
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
         <span className="text-sm text-gray-400 flex items-center gap-1">
           <span>{getContentTypeIcon(item.type)}</span>
           <span className="capitalize">{item.type.replace('-', ' ')}</span>
@@ -234,11 +287,11 @@ function HubFeedItem({ item, hubColor, isHighlighted }) {
         )}
       </div>
 
-      <h3 className="font-heading font-semibold text-gray-900 leading-snug mb-2">
+      <h3 className="font-heading font-semibold text-gray-900 leading-snug mb-2 break-words">
         {item.title}
       </h3>
 
-      <p className="text-sm text-gray-500 leading-relaxed">
+      <p className="text-sm text-gray-500 leading-relaxed break-words">
         {isExpanded ? (
           <span className="whitespace-pre-line">{item.fullContent}</span>
         ) : (
@@ -269,7 +322,7 @@ function HubFeedItem({ item, hubColor, isHighlighted }) {
 
 function MeetingsWidget({ meetings, hubColor }) {
   return (
-    <div className="bg-white rounded-2xl p-5">
+    <div className="bg-white rounded-xl p-4 sm:rounded-2xl sm:p-5">
       <div className="flex items-center gap-2 mb-4">
         <CalendarIcon size={16} color={hubColor} />
         <h3 className="text-sm font-heading font-semibold text-gray-900">Upcoming Meetings</h3>
@@ -282,8 +335,8 @@ function MeetingsWidget({ meetings, hubColor }) {
               <div className="text-[10px] text-gray-400">{m.date.split(' ')[1]?.replace(',', '')}</div>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-800 leading-tight">{m.title}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{m.time} · {m.location}</div>
+              <div className="text-sm font-medium text-gray-800 leading-tight break-words">{m.title}</div>
+              <div className="text-xs text-gray-400 mt-0.5 break-words">{m.time} · {m.location}</div>
             </div>
           </div>
         ))}
@@ -294,7 +347,7 @@ function MeetingsWidget({ meetings, hubColor }) {
 
 function OfficialsWidget({ officials, hubColor, label = 'Officials' }) {
   return (
-    <div className="bg-white rounded-2xl p-5">
+    <div className="bg-white rounded-xl p-4 sm:rounded-2xl sm:p-5">
       <div className="flex items-center gap-2 mb-4">
         <UserIcon size={16} color={hubColor} />
         <h3 className="text-sm font-heading font-semibold text-gray-900">{label}</h3>
@@ -309,8 +362,8 @@ function OfficialsWidget({ officials, hubColor, label = 'Officials' }) {
               {o.name.split(' ').map(n => n[0]).join('')}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-800">{o.name}</div>
-              <div className="text-xs text-gray-400">
+              <div className="text-sm font-medium text-gray-800 break-words">{o.name}</div>
+              <div className="text-xs text-gray-400 break-words">
                 {o.role}{o.district ? ` · ${o.district}` : ''}
               </div>
             </div>
@@ -324,7 +377,7 @@ function OfficialsWidget({ officials, hubColor, label = 'Officials' }) {
 
 function DocumentsWidget({ documents, hubColor }) {
   return (
-    <div className="bg-white rounded-2xl p-5">
+    <div className="bg-white rounded-xl p-4 sm:rounded-2xl sm:p-5">
       <div className="flex items-center gap-2 mb-4">
         <span style={{ color: hubColor }}>📄</span>
         <h3 className="text-sm font-heading font-semibold text-gray-900">Key Documents</h3>
@@ -348,7 +401,7 @@ function DocumentsWidget({ documents, hubColor }) {
 
 function ContactWidget({ contactInfo, hubColor }) {
   return (
-    <div className="bg-white rounded-2xl p-5">
+    <div className="bg-white rounded-xl p-4 sm:rounded-2xl sm:p-5">
       <div className="flex items-center gap-2 mb-4">
         <MapPinIcon size={16} color={hubColor} />
         <h3 className="text-sm font-heading font-semibold text-gray-900">Contact & Hours</h3>
@@ -356,24 +409,24 @@ function ContactWidget({ contactInfo, hubColor }) {
       <div className="space-y-2.5 text-sm">
         <div className="flex gap-2">
           <span className="text-gray-400 flex-shrink-0">📞</span>
-          <span className="text-gray-700">{contactInfo.phone}</span>
+          <span className="text-gray-700 break-words min-w-0">{contactInfo.phone}</span>
         </div>
         <div className="flex gap-2">
           <span className="text-gray-400 flex-shrink-0">✉️</span>
-          <span className="text-gray-700">{contactInfo.email}</span>
+          <span className="text-gray-700 break-all min-w-0">{contactInfo.email}</span>
         </div>
         <div className="flex gap-2">
           <span className="text-gray-400 flex-shrink-0">📍</span>
-          <span className="text-gray-700">{contactInfo.address}</span>
+          <span className="text-gray-700 break-words min-w-0">{contactInfo.address}</span>
         </div>
         <div className="flex gap-2">
           <span className="text-gray-400 flex-shrink-0">🕐</span>
-          <span className="text-gray-700">{contactInfo.officeHours}</span>
+          <span className="text-gray-700 break-words min-w-0">{contactInfo.officeHours}</span>
         </div>
         {contactInfo.website && (
           <div className="flex gap-2">
             <span className="text-gray-400 flex-shrink-0">🌐</span>
-            <span className="text-gray-700">{contactInfo.website}</span>
+            <span className="text-gray-700 break-all min-w-0">{contactInfo.website}</span>
           </div>
         )}
       </div>
@@ -384,7 +437,7 @@ function ContactWidget({ contactInfo, hubColor }) {
 function ProgressWidget({ campaign, hubColor }) {
   const pct = Math.round((campaign.current / campaign.target) * 100);
   return (
-    <div className="bg-white rounded-2xl p-5">
+    <div className="bg-white rounded-xl p-4 sm:rounded-2xl sm:p-5">
       <h3 className="text-sm font-heading font-semibold text-gray-900 mb-1">{campaign.goal}</h3>
       <p className="text-xs text-gray-400 mb-4">Deadline: {campaign.deadline}</p>
 
@@ -410,7 +463,7 @@ function ProgressWidget({ campaign, hubColor }) {
 
 function MilestonesWidget({ milestones, hubColor }) {
   return (
-    <div className="bg-white rounded-2xl p-5">
+    <div className="bg-white rounded-xl p-4 sm:rounded-2xl sm:p-5">
       <h3 className="text-sm font-heading font-semibold text-gray-900 mb-4">Milestones</h3>
       <div className="relative pl-6">
         {/* Vertical line */}
@@ -446,7 +499,7 @@ function MilestonesWidget({ milestones, hubColor }) {
 
 function ActionsWidget({ actions, hubColor }) {
   return (
-    <div className="bg-white rounded-2xl p-5">
+    <div className="bg-white rounded-xl p-4 sm:rounded-2xl sm:p-5">
       <h3 className="text-sm font-heading font-semibold text-gray-900 mb-4">Get Involved</h3>
       <div className="space-y-2.5">
         {actions.map((a, i) => (
@@ -470,9 +523,9 @@ function ActionsWidget({ actions, hubColor }) {
   );
 }
 
-function AboutWidget({ about, hubColor }) {
+function AboutWidget({ about }) {
   return (
-    <div className="bg-white rounded-2xl p-5">
+    <div className="bg-white rounded-xl p-4 sm:rounded-2xl sm:p-5">
       <h3 className="text-sm font-heading font-semibold text-gray-900 mb-3">About</h3>
       <p className="text-sm text-gray-600 leading-relaxed mb-4">{about.mission}</p>
 
@@ -501,7 +554,7 @@ function AboutWidget({ about, hubColor }) {
 
 function JoinWidget({ joinCTA, hubColor }) {
   return (
-    <div className="rounded-2xl p-5" style={{ backgroundColor: hubColor + '10' }}>
+    <div className="rounded-xl p-4 sm:rounded-2xl sm:p-5" style={{ backgroundColor: hubColor + '10' }}>
       <p className="text-sm text-gray-700 leading-relaxed mb-4">{joinCTA.text}</p>
       <button
         className="w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
@@ -515,7 +568,7 @@ function JoinWidget({ joinCTA, hubColor }) {
 
 function EventsWidget({ events, hubColor }) {
   return (
-    <div className="bg-white rounded-2xl p-5">
+    <div className="bg-white rounded-xl p-4 sm:rounded-2xl sm:p-5">
       <div className="flex items-center gap-2 mb-4">
         <CalendarIcon size={16} color={hubColor} />
         <h3 className="text-sm font-heading font-semibold text-gray-900">Upcoming Events</h3>
@@ -528,8 +581,8 @@ function EventsWidget({ events, hubColor }) {
               <div className="text-[10px] text-gray-400">{e.date.split(' ')[1]?.replace(',', '')}</div>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-800 leading-tight">{e.title}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{e.time} · {e.location}</div>
+              <div className="text-sm font-medium text-gray-800 leading-tight break-words">{e.title}</div>
+              <div className="text-xs text-gray-400 mt-0.5 break-words">{e.time} · {e.location}</div>
             </div>
           </div>
         ))}
@@ -569,7 +622,7 @@ function HubSidebar({ hub, hubColor }) {
   // organization
   return (
     <div className="space-y-4">
-      {data.about && <AboutWidget about={data.about} hubColor={hubColor} />}
+      {data.about && <AboutWidget about={data.about} />}
       {data.leadership && <OfficialsWidget officials={data.leadership} hubColor={hubColor} label="Leadership" />}
       {data.upcomingEvents && <EventsWidget events={data.upcomingEvents} hubColor={hubColor} />}
       {data.joinCTA && <JoinWidget joinCTA={data.joinCTA} hubColor={hubColor} />}
@@ -600,6 +653,7 @@ function ComingSoonTab({ tabName }) {
 
 export function HubPage({ hub, highlightedItem }) {
   const [activeTab, setActiveTab] = useState('activity');
+  const isMobile = useIsMobile();
   const colors = hubColors[hub.id] || { bg: '#F5F5F5', text: '#666' };
   const hubColor = colors.text;
   const allItems = getFeedItemsByHub(hub.id);
@@ -616,17 +670,17 @@ export function HubPage({ hub, highlightedItem }) {
   const groupOrder = ['Today', 'This Week', 'Earlier'];
 
   return (
-    <div className="flex-1 min-w-0 h-screen overflow-y-auto bg-civic-cream">
+    <div className="flex-1 min-w-0 h-screen overflow-y-auto overflow-x-hidden bg-civic-cream">
       {/* Banner */}
-      <HubBanner hub={hub} colors={colors} itemCount={allItems.length} unreadCount={unreadCount} />
+      <HubBanner hub={hub} itemCount={allItems.length} unreadCount={unreadCount} isMobile={isMobile} />
 
       {/* Tabs */}
-      <HubTabBar activeTab={activeTab} onTabChange={setActiveTab} hubColor={hubColor} />
+      <HubTabBar activeTab={activeTab} onTabChange={setActiveTab} hubColor={hubColor} isMobile={isMobile} />
 
       {/* Content */}
       {activeTab === 'activity' ? (
-        <div className="max-w-6xl mx-auto px-10 py-8">
-          <div className="flex gap-8 overflow-hidden">
+        <div className={`max-w-6xl mx-auto ${isMobile ? 'px-3.5 py-4' : 'px-10 py-8'}`}>
+          <div className={isMobile ? '' : 'flex gap-8 overflow-hidden'}>
             {/* Main — Activity Feed */}
             <div className="flex-1 min-w-0 overflow-hidden">
               {/* Highlighted Item */}
@@ -639,6 +693,7 @@ export function HubPage({ hub, highlightedItem }) {
                     item={highlightedItem}
                     hubColor={hubColor}
                     isHighlighted={true}
+                    isMobile={isMobile}
                   />
                 </div>
               )}
@@ -659,6 +714,7 @@ export function HubPage({ hub, highlightedItem }) {
                           item={item}
                           hubColor={hubColor}
                           isHighlighted={false}
+                          isMobile={isMobile}
                         />
                       ))}
                     </div>
@@ -673,14 +729,23 @@ export function HubPage({ hub, highlightedItem }) {
               )}
             </div>
 
-            {/* Sidebar */}
-            <div className="w-[340px] flex-shrink-0">
+            {/* Sidebar — hidden on mobile */}
+            {!isMobile && (
+              <div className="w-[340px] flex-shrink-0">
+                <HubSidebar hub={hub} hubColor={hubColor} />
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar below feed on mobile */}
+          {isMobile && (
+            <div className="mt-5">
               <HubSidebar hub={hub} hubColor={hubColor} />
             </div>
-          </div>
+          )}
         </div>
       ) : (
-        <div className="max-w-6xl mx-auto px-10 py-8">
+        <div className={`max-w-6xl mx-auto ${isMobile ? 'px-3.5 py-4' : 'px-10 py-8'}`}>
           <ComingSoonTab tabName={hubTabs.find(t => t.id === activeTab)?.label || activeTab} />
         </div>
       )}

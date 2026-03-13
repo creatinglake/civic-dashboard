@@ -21,6 +21,10 @@ function App() {
   const [mobileTab, setMobileTab] = useState('feed');
   const [externalView, setExternalView] = useState(null);
   const [activePage, setActivePage] = useState(null);
+  const widgetPanelScrollRef = useRef({ info: 0, tools: 0 });
+  const mobileInfoScrollRef = useRef(0);
+  const shouldRestoreMobileInfoScrollRef = useRef(false);
+  const isOutOfDashboard = activePage || externalView;
 
   // Handle hub selection
   const handleSelectHub = (hubId) => {
@@ -44,6 +48,11 @@ function App() {
 
   // Handle opening external tool
   const handleOpenTool = (tool) => {
+    if (isMobile && mobileTab === 'info') {
+      mobileInfoScrollRef.current = window.scrollY;
+      shouldRestoreMobileInfoScrollRef.current = true;
+    }
+
     if (tool.url) {
       setExternalView({
         isHub: false,
@@ -55,6 +64,11 @@ function App() {
 
   // Handle opening internal pages
   const handleOpenPage = (pageType, data) => {
+    if (isMobile && mobileTab === 'info') {
+      mobileInfoScrollRef.current = window.scrollY;
+      shouldRestoreMobileInfoScrollRef.current = true;
+    }
+
     if (pageType === 'hub' && data?.hubId) {
       setSelectedHub(data.hubId);
       if (isMobile) setMobileTab('feed');
@@ -62,6 +76,34 @@ function App() {
     }
     setActivePage({ type: pageType, data });
   };
+
+  const handleWidgetPanelScrollChange = useCallback((section, scrollTop) => {
+    widgetPanelScrollRef.current[section] = scrollTop;
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile || isOutOfDashboard || mobileTab !== 'info') return undefined;
+
+    const handleScroll = () => {
+      mobileInfoScrollRef.current = window.scrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isMobile, isOutOfDashboard, mobileTab]);
+
+  useEffect(() => {
+    if (!isMobile || isOutOfDashboard || mobileTab !== 'info' || !shouldRestoreMobileInfoScrollRef.current) {
+      return undefined;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: mobileInfoScrollRef.current, behavior: 'auto' });
+      shouldRestoreMobileInfoScrollRef.current = false;
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [isMobile, isOutOfDashboard, mobileTab]);
 
   // Ref to prevent duplicate history pushes (React strict mode / HMR)
   const historyPushedRef = useRef(false);
@@ -106,8 +148,7 @@ function App() {
     }
   }, [activePage, externalView]);
 
-  // Determine if we're in an out-of-dashboard view
-  const isOutOfDashboard = activePage || externalView;
+  const overlay = <WelcomeOverlay />;
 
   // Render out-of-dashboard views with unified left sidebar
   if (isOutOfDashboard) {
@@ -170,7 +211,8 @@ function App() {
     }
 
     return (
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen overflow-x-hidden">
+        {overlay}
         <BackSidebar onBack={handleBackToDashboard} />
         {pageContent}
       </div>
@@ -181,13 +223,21 @@ function App() {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-civic-cream pb-[72px]">
+        {overlay}
         {mobileTab === 'info' && (
-          <WidgetPanel onOpenTool={handleOpenTool} onOpenPage={handleOpenPage} />
+          <WidgetPanel
+            onOpenTool={handleOpenTool}
+            onOpenPage={handleOpenPage}
+            scrollState={widgetPanelScrollRef.current}
+            onScrollChange={handleWidgetPanelScrollChange}
+          />
         )}
         {mobileTab === 'feed' && (
           <Newsfeed
             selectedHub={selectedHub}
             onViewInHub={handleViewInHub}
+            onSelectHub={handleSelectHub}
+            onSelectAll={handleSelectAll}
           />
         )}
         {mobileTab === 'hubs' && (
@@ -205,7 +255,7 @@ function App() {
   // Desktop Layout - Three Column
   return (
     <div className="min-h-screen bg-civic-cream flex">
-      <WelcomeOverlay />
+      {overlay}
       {/* Left Column - Sidebar Navigation */}
       <div className="w-[300px] flex-shrink-0 border-r border-gray-200 h-screen sticky top-0">
         <Sidebar
@@ -220,12 +270,19 @@ function App() {
         <Newsfeed
           selectedHub={selectedHub}
           onViewInHub={handleViewInHub}
+          onSelectHub={handleSelectHub}
+          onSelectAll={handleSelectAll}
         />
       </div>
 
       {/* Right Column - Civic Info + Tools */}
       <div className="w-[380px] flex-shrink-0 h-screen overflow-hidden border-l border-gray-200 bg-white">
-        <WidgetPanel onOpenTool={handleOpenTool} onOpenPage={handleOpenPage} />
+        <WidgetPanel
+          onOpenTool={handleOpenTool}
+          onOpenPage={handleOpenPage}
+          scrollState={widgetPanelScrollRef.current}
+          onScrollChange={handleWidgetPanelScrollChange}
+        />
       </div>
     </div>
   );

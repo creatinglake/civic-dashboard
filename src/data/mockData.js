@@ -545,7 +545,7 @@ export const civicTools = [
     name: 'Advisory Voting',
     headline: 'Advisory Voting',
     description: "Tell your representatives how you would like them to vote on upcoming legislation.",
-    buttonText: 'Open Advisory Voting',
+    buttonText: 'Advise Your Legislators',
     icon: 'vote',
     page: 'advisory-voting',
   },

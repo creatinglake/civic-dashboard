@@ -36,15 +36,17 @@ function StaticMapWidget() {
   );
 }
 
-export function CivicInfoSection({ onOpenPage }) {
+export function CivicInfoSection({ onOpenPage, hideTopTitle = false }) {
   return (
     <div className="px-8 py-6">
-      <h2 className="text-lg font-heading font-semibold text-gray-900 mb-5">
-        Civic Information
-      </h2>
+      {!hideTopTitle && (
+        <h2 className="text-lg font-heading font-semibold text-gray-900 mb-5">
+          Civic Information
+        </h2>
+      )}
 
       {/* My Civic Map */}
-      <div className="mb-6">
+      <div className={hideTopTitle ? '' : 'mb-6'}>
         <div className="flex items-center gap-2 mb-3">
           <MapPinIcon size={16} className="text-civic-rust" />
           <h3 className="text-sm font-semibold text-gray-700">My Civic Map</h3>
