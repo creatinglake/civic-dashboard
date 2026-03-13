@@ -10,20 +10,22 @@ export function MobileTabBar({ activeTab, onTabChange }) {
 
   return (
     <nav className="mobile-tab-bar">
-      {tabs.map((tab) => {
-        const Icon = tab.icon;
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            className={`mobile-tab ${activeTab === tab.id ? 'active' : ''}`}
-            aria-current={activeTab === tab.id ? 'page' : undefined}
-          >
-            <Icon size={24} />
-            <span>{tab.label}</span>
-          </button>
-        );
-      })}
+      <div className="mobile-tab-bar-inner">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`mobile-tab ${activeTab === tab.id ? 'active' : ''}`}
+              aria-current={activeTab === tab.id ? 'page' : undefined}
+            >
+              <Icon size={24} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 }

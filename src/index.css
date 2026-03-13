@@ -286,13 +286,20 @@ button:focus {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 72px;
+  height: calc(80px + env(safe-area-inset-bottom));
   background-color: var(--color-civic-green);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-top: 8px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
   z-index: 100;
+  overflow: visible;
+}
+
+.mobile-tab-bar-inner {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  width: 100%;
+  height: 100%;
 }
 
 .mobile-tab {
@@ -300,14 +307,23 @@ button:focus {
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
   color: rgba(240, 235, 225, 0.6);
   font-size: 0.75rem;
   font-weight: 500;
-  padding: 8px 16px;
+  padding: 4px 8px 0;
   border: none;
   background: none;
   transition: color 0.2s ease;
   position: relative;
+}
+
+.mobile-tab svg {
+  flex-shrink: 0;
+  overflow: visible;
 }
 
 .mobile-tab.active {
@@ -317,7 +333,7 @@ button:focus {
 .mobile-tab.active::after {
   content: '';
   position: absolute;
-  bottom: 4px;
+  bottom: 2px;
   width: 4px;
   height: 4px;
   background: var(--color-civic-yellow);
