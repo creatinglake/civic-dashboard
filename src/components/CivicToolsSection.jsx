@@ -2,13 +2,17 @@ import React from 'react';
 import { ToolIcon } from './Icons';
 import { civicTools } from '../data/mockData';
 
-export function CivicToolsSection({ onOpenPage }) {
+export function CivicToolsSection({ onOpenPage, hideTopTitle = false }) {
   return (
     <div className="px-8 py-6">
-      <h2 className="text-lg font-heading font-semibold text-gray-900 mb-1">
-        Civic Tools
-      </h2>
-      <p className="text-xs text-gray-400 mb-5">{civicTools.length} tools available</p>
+      {!hideTopTitle && (
+        <>
+          <h2 className="text-lg font-heading font-semibold text-gray-900 mb-1">
+            Civic Tools
+          </h2>
+          <p className="text-xs text-gray-400 mb-5">{civicTools.length} tools available</p>
+        </>
+      )}
 
       <div className="space-y-4">
         {civicTools.map((tool) => (

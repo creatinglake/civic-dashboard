@@ -1,6 +1,8 @@
 import React from 'react';
 import { HubIcon, ChevronRightIcon } from './Icons';
 import { civicHubs, hubColors, getHubsByType } from '../data/mockData';
+import { useIsMobile } from '../hooks/useMediaQuery';
+import { MobileBrandHeader } from './MobileBrandHeader';
 
 const hubTypeLabels = {
   jurisdiction: 'Jurisdictions',
@@ -11,20 +13,26 @@ const hubTypeLabels = {
 const hubTypeOrder = ['jurisdiction', 'issue', 'organization'];
 
 export function HubsList({ onSelectHub }) {
+  const isMobile = useIsMobile();
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-civic-green/10 bg-civic-cream/50">
-        <h2 className="text-2xl font-heading font-semibold text-civic-green">
-          My Civic Hubs
-        </h2>
-        <p className="text-sm text-civic-green/60 mt-1">
-          {civicHubs.length} hubs you follow
-        </p>
-      </div>
+      {isMobile ? (
+        <MobileBrandHeader title="My Civic Hubs" subtitle={`${civicHubs.length} hubs you follow`} />
+      ) : (
+        <div className="px-6 py-5 border-b border-civic-green/10 bg-civic-cream/50">
+          <h2 className="text-2xl font-heading font-semibold text-civic-green">
+            My Civic Hubs
+          </h2>
+          <p className="text-sm text-civic-green/60 mt-1">
+            {civicHubs.length} hubs you follow
+          </p>
+        </div>
+      )}
 
       {/* Hubs List */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className={`flex-1 overflow-y-auto ${isMobile ? 'p-4' : 'p-4'}`}>
         {hubTypeOrder.map((type) => {
           const hubs = getHubsByType(type);
           if (hubs.length === 0) return null;

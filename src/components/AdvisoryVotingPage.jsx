@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
-import screenshot1 from '../assets/Voatz Screenshot1.png';
-import screenshot2 from '../assets/Voatz Screenshot 2.png';
+import desktopScreenshot1 from '../assets/Voatz Screenshot1.png';
+import desktopScreenshot2 from '../assets/Voatz Screenshot 2.png';
+import mobileScreenshot1 from '../assets/Voatz1.jpeg';
+import mobileScreenshot2 from '../assets/Voatz2.jpeg';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 export function AdvisoryVotingPage() {
   const [showDetail, setShowDetail] = useState(false);
+  const isMobile = useIsMobile();
+  const screenshot1 = isMobile ? mobileScreenshot1 : desktopScreenshot1;
+  const screenshot2 = isMobile ? mobileScreenshot2 : desktopScreenshot2;
 
   return (
     <div className="flex-1 min-w-0 h-screen overflow-y-auto relative">
